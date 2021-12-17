@@ -1,0 +1,47 @@
+
+---
+- name: lesson
+  hosts: all
+  become: yes
+  
+  
+  vars:
+    message1: Privet
+	message2: World
+	secret  :  x
+	
+	tasks:
+	
+	- name: print secret variable
+	  debug: # у него 2 параметра либо 1 либо 2
+	   var: secret  # написать секрет
+	   
+    - debug:
+	    msg: "sekretnoe slovo {{ secret }}"                        #написать параметр секрет
+	
+	- debug:
+	    msg: "vladecel etogo servera -->{{ owner }}<--"             #можно написать переменную в файле инвентори
+		
+    - set_fact: full_message="{{ message1 }} {{ message2 }} from {{ owner }}"
+	
+	- debug: 
+	   var: full_message
+	   
+    - debug:
+	   var: ansible_distribution             #командой ansible all -m setup можно найти разные переменные относятся ОС
+	   
+	- shell: uptime
+	  register: results                      #вывести команду на экран на сервере ансимбла 
+	 
+	- debug:
+	  var: results.stdout	                 #таким образом выведим строчку нужную нам из команды uptime
+	 
+	   
+	
+	   
+	
+		
+		
+	   
+	   
+  
