@@ -1,0 +1,52 @@
+#плейбук устанавливает апачи, потом копирует файлы с ансибла на все сервера, и делет рестарт если были изменения
+---
+- name: Install Apache and Upload my Home Page
+  hosts: all
+  become: yes
+  
+  vars: #переменные
+   source_file: ./home/yurchihnen/index.html # это где находится фаил на сервере ансибл
+   destin_file: /opt/kron/html # Куда скачивается фаил на сервере 
+   
+  tasks:
+  - name: Check and Print Linux Version
+    debug: var=ansible_os_family
+	
+  - block: #==========Block for REDHAT=========
+    
+    - name: Install Apache Web Server
+      yum: name=httpd state=latest
+	  
+    - name: Copy HomePage file to Web Server
+      copy: src={{ source_file }} dest={{ destin_file }} mode=0555
+	  notify: Restart Apache
+	  
+    - name: Start Web Server service for RedHat
+      service: name=httpd state=started enabled=yes
+	  
+	when: ansible_os_family == "RedHat"
+  
+  - block: #==========Block for Debian=========
+    
+    - name: Install Apache for Debian
+      apt: name=apache2 state=latest
+	  
+	- name: Copy HomePage file to Web Server
+      copy: src={{ source_file }} dest={{ destin_file }} mode=0555
+	  notify: Restart Apache Debian
+	  
+    - name: Start Web Server service for Debian
+      service: name=apache2 state=started enabled=yes
+	  
+    when: ansible_os_family == "Debian"
+	
+  hendlers:
+  - name: Restart Apache RedHat
+    service: name=httpd state=restarted
+   
+  - name: Restart Apache Debian
+    service: name=apache2 state=restarted  
+	
+ ########################################################################## блоки
+ 
+   
